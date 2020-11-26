@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DependencyInjectionLibrary
 {
-    class DependencyConfigurator
+    public class DependencyConfigurator
     {
+        public Dictionary<Type, List<Configurator>> registeredConfigurations = new Dictionary<Type, List<Configurator>>();
 
         public void Register<TInterface,TImplementation>(Configurator.Lifetime lifetime = Configurator.Lifetime.Instance) 
             where TInterface:class 
@@ -20,6 +22,14 @@ namespace DependencyInjectionLibrary
 
                 Configurator configurator = new Configurator(tInterface, tImplementation, lifetime);
 
+                if(registeredConfigurations.ContainsKey(tInterface))
+                {
+                    registeredConfigurations[tInterface].Add(configurator);
+                }
+                else
+                {
+                    registeredConfigurations.Add(tInterface, new List<Configurator> { configurator });
+                }
                 
             }
 
