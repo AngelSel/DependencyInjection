@@ -5,7 +5,7 @@ namespace DependencyInjectionLibrary
 {
     public class DependencyConfigurator
     {
-        public Dictionary<Type, List<Configurator>> registeredConfigurations = new Dictionary<Type, List<Configurator>>();
+        public Dictionary<Type, List<Configurator>> registeredConfigurations { get; } = new Dictionary<Type, List<Configurator>>();
 
         public void Register<TInterface,TImplementation>(Configurator.Lifetime lifetime = Configurator.Lifetime.Instance) 
             where TInterface:class 
@@ -30,7 +30,7 @@ namespace DependencyInjectionLibrary
                 {
                     registeredConfigurations.Add(tInterface, new List<Configurator> { configurator });
                 }
-                
+               
             }
 
         }

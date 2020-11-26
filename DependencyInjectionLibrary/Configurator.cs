@@ -10,7 +10,6 @@ namespace DependencyInjectionLibrary
             Instance
         }
 
-
         public Lifetime LifeTime { get; }
 
         public Type Interface { get; }
