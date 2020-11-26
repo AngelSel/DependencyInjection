@@ -33,7 +33,11 @@ namespace DependencyInjectionLibrary
             }
             else if(tDependency.IsGenericType && !contains)
             {
-
+                //Type implementation = GetImplementationType(tDependency);
+                if(_dependencyConfig.registeredConfigurations.TryGetValue(tDependency.GetGenericTypeDefinition(),out var configs))
+                {
+                    return CreateInstance(configs.Last());
+                }
             }
             else if(contains)
             {
@@ -125,6 +129,19 @@ namespace DependencyInjectionLibrary
             }
 
             return values;
+        }
+
+
+        private Type GetImplementationType(Type tDependency)
+        {
+            var argument = tDependency.GetGenericArguments().FirstOrDefault();
+            if (_dependencyConfig.registeredConfigurations.TryGetValue(tDependency.GetGenericTypeDefinition(), out var impl))
+            {
+                var i = impl.Last().Implementation;
+                return i.MakeGenericType(argument);
+            }
+            else
+                return null;
         }
 
     }
