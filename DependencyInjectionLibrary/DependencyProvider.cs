@@ -25,23 +25,21 @@ namespace DependencyInjectionLibrary
 
         private object Resolve(Type tDependency)
         {
-            bool contains = _dependencyConfig.registeredConfigurations.TryGetValue(tDependency, out var res);
-
-            if(typeof(IEnumerable).IsAssignableFrom(tDependency))
+    
+            if(typeof(IEnumerable).IsAssignableFrom(tDependency) && tDependency.IsGenericType)
             {
                 return Create(tDependency);
             }
-            else if(tDependency.IsGenericType && !contains)
+            else if(tDependency.IsGenericType && _dependencyConfig.GetConfigurator(tDependency)==null)
             {
-                //Type implementation = GetImplementationType(tDependency);
-                if(_dependencyConfig.registeredConfigurations.TryGetValue(tDependency.GetGenericTypeDefinition(),out var configs))
-                {
-                    return CreateInstance(configs.Last());
-                }
+                Type implementation = GetImplementationType(tDependency);
+                Configurator configurator = _dependencyConfig.GetConfigurator(tDependency.GetGenericTypeDefinition());
+                return CreateInstance(configurator);
+
             }
-            else if(contains)
+            else if(_dependencyConfig.GetConfigurator(tDependency) != null)
             {
-                return CreateInstance(res.Last());
+                return CreateInstance(_dependencyConfig.GetConfigurator(tDependency));
             }
 
             return null;
@@ -67,10 +65,18 @@ namespace DependencyInjectionLibrary
         }
 
 
-        private object CreateInstance(Configurator config)
+        private object CreateInstance(Configurator config,Type implement = null)
         {
-
-            Type implementation = config.Implementation;
+            Type implementation = null;
+            if(implement == null)
+            {
+                implementation = config.Implementation;
+            }
+            else
+            {
+                implementation = implement;
+            }
+                
 
             if (config.LifeTime == Configurator.Lifetime.Singleton && Instances.ContainsKey(implementation))
                 return Instances[implementation];
@@ -102,7 +108,6 @@ namespace DependencyInjectionLibrary
                 if (!Instances.TryAdd(implementation, resultObject))
                     return Instances[implementation];
             return resultObject;
-
         }
 
 
@@ -114,10 +119,10 @@ namespace DependencyInjectionLibrary
             for(int i = 0;i<parameters.Length;i++)
             {
                 Type paramType = null;
-                if (_dependencyConfig.registeredConfigurations.TryGetValue(parameters[i].ParameterType, out var currentParameters))
+                var currentParameters = _dependencyConfig.GetConfigurator(parameters[i].ParameterType);
+                if (currentParameters!=null)
                 {
-                    var currentParam = currentParameters.Last();
-                    paramType = currentParam.Interface;
+                    paramType = currentParameters.Interface;
                 }
                 else
                 {
@@ -125,9 +130,7 @@ namespace DependencyInjectionLibrary
                 }
 
                 values[i] = Resolve(paramType);
-
             }
-
             return values;
         }
 
@@ -135,15 +138,14 @@ namespace DependencyInjectionLibrary
         private Type GetImplementationType(Type tDependency)
         {
             var argument = tDependency.GetGenericArguments().FirstOrDefault();
-            if (_dependencyConfig.registeredConfigurations.TryGetValue(tDependency.GetGenericTypeDefinition(), out var impl))
+            var implemetation = _dependencyConfig.GetConfigurator(tDependency.GetGenericTypeDefinition()).Implementation;
+            if (implemetation!=null)
             {
-                var i = impl.Last().Implementation;
-                return i.MakeGenericType(argument);
+                return implemetation.MakeGenericType(argument);
             }
             else
                 return null;
         }
-
     }
 }
 

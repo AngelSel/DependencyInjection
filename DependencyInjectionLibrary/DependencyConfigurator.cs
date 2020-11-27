@@ -41,7 +41,7 @@ namespace DependencyInjectionLibrary
                 return false;
         }
 
-        private Configurator GetConfigurator(Type tInterface)
+        public Configurator GetConfigurator(Type tInterface)
         {
             if (registeredConfigurations.TryGetValue(tInterface, out var types))
                 return types.Last();
@@ -49,7 +49,7 @@ namespace DependencyInjectionLibrary
                 return null;    
         }
 
-        private IEnumerable<Configurator> GetConfigurators(Type tInterface)
+        public IEnumerable<Configurator> GetConfigurators(Type tInterface)
         {
             if (registeredConfigurations.TryGetValue(tInterface, out var types))
                 return types;
