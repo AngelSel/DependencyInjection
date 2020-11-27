@@ -12,7 +12,7 @@ namespace DependencyInjectionLibrary
             where TInterface:class 
             where TImplementation:TInterface
         {
-            Register(typeof(TInterface), typeof(TImplementation));
+            Register(typeof(TInterface), typeof(TImplementation),lifetime);
         }
 
 
