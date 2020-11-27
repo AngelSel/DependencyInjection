@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DependencyInjectionLibrary
 {
     public class DependencyConfigurator
     {
-        public Dictionary<Type, List<Configurator>> registeredConfigurations { get; } = new Dictionary<Type, List<Configurator>>();
+        public Dictionary<Type, List<Configurator>> registeredConfigurations = new Dictionary<Type, List<Configurator>>();
 
         public void Register<TInterface,TImplementation>(Configurator.Lifetime lifetime = Configurator.Lifetime.Instance) 
             where TInterface:class 
@@ -19,7 +20,6 @@ namespace DependencyInjectionLibrary
         {
             if(CanCreate(tInterface,tImplementation))
             {
-
                 Configurator configurator = new Configurator(tInterface, tImplementation, lifetime);
 
                 if(registeredConfigurations.ContainsKey(tInterface))
@@ -29,10 +29,8 @@ namespace DependencyInjectionLibrary
                 else
                 {
                     registeredConfigurations.Add(tInterface, new List<Configurator> { configurator });
-                }
-               
+                }           
             }
-
         }
 
         private bool CanCreate(Type tInterface, Type tImplementation)
@@ -41,6 +39,22 @@ namespace DependencyInjectionLibrary
                 return true;
             else
                 return false;
+        }
+
+        private Configurator GetConfigurator(Type tInterface)
+        {
+            if (registeredConfigurations.TryGetValue(tInterface, out var types))
+                return types.Last();
+            else
+                return null;    
+        }
+
+        private IEnumerable<Configurator> GetConfigurators(Type tInterface)
+        {
+            if (registeredConfigurations.TryGetValue(tInterface, out var types))
+                return types;
+            else
+                return null;
         }
 
     }
