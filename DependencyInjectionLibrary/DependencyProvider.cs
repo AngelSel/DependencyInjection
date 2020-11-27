@@ -34,7 +34,7 @@ namespace DependencyInjectionLibrary
             {
                 Type implementation = GetImplementationType(tDependency);
                 Configurator configurator = _dependencyConfig.GetConfigurator(tDependency.GetGenericTypeDefinition());
-                return CreateInstance(configurator);
+                return CreateInstance(configurator,implementation);
 
             }
             else if(_dependencyConfig.GetConfigurator(tDependency) != null)

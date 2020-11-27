@@ -71,5 +71,34 @@ namespace DependencyInjectionTests
             Assert.AreEqual(expected3.Result, actual);
         }
 
+
+        [Test]
+        public void StandartGenericDependencyTest()
+        {
+            var dependencies = new DependencyConfigurator();
+            dependencies.Register<IRepository, RepositoryImplementation>();
+            dependencies.Register<IService<IRepository>, Service<IRepository>>();
+
+            var provider = new DependencyProvider(dependencies);
+            var actual = provider.Resolve<IService<IRepository>>();
+            var expected = "Generics";
+
+            Assert.AreEqual(expected,(actual as Service<IRepository>).Print());
+        }
+
+        [Test]
+        public void OpenGenericDependencyTest()
+        {
+            var dependencies = new DependencyConfigurator();
+            dependencies.Register(typeof(IService<>), typeof(Service<>));
+            dependencies.Register<IRepository, RepositoryImplementation>();
+
+            var provider = new DependencyProvider(dependencies);
+            var actual = provider.Resolve<IService<IRepository>>();
+            var expected = "Generics";
+
+            Assert.AreEqual(expected,(actual as Service<IRepository>).Print());
+        }
+
     }
 }
