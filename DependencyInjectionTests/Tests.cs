@@ -98,6 +98,7 @@ namespace DependencyInjectionTests
             Assert.AreEqual(expected3.Result, actual);
         }
 
+
         // Test for registering and resolving of generic dependencies
         [Test]
         public void StandartGenericDependencyTest()
@@ -128,6 +129,7 @@ namespace DependencyInjectionTests
 
             Assert.AreEqual(expected, (actual as Service<IRepository>).Print());
         }
+
 
         //Test for checking some exeptional situations
         [Test]

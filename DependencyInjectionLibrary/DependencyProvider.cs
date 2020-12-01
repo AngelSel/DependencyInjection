@@ -9,7 +9,7 @@ namespace DependencyInjectionLibrary
 {
     public class DependencyProvider
     {
-        private ConcurrentDictionary<Type, object> Instances = new ConcurrentDictionary<Type, object>();
+        private ConcurrentDictionary<Type, object> _instances = new ConcurrentDictionary<Type, object>();
         private DependencyConfigurator _dependencyConfig;
 
         public DependencyProvider(DependencyConfigurator config)
@@ -28,8 +28,7 @@ namespace DependencyInjectionLibrary
     
             if(typeof(IEnumerable).IsAssignableFrom(tDependency) && tDependency.IsGenericType)
             {
-                var collection = Create(tDependency);
-                return collection;
+                return CreateEnumerable(tDependency);
             }
             else if(tDependency.IsGenericType && _dependencyConfig.GetConfigurator(tDependency)==null)
             {
@@ -47,13 +46,12 @@ namespace DependencyInjectionLibrary
         }
 
 
-        private List<object> Create(Type type)
+        private List<object> CreateEnumerable(Type type)
         {
             var argumentType = type.GetGenericArguments()[0];
 
             if(_dependencyConfig.registeredConfigurations.TryGetValue(argumentType, out var configuratedTypes))
             {
-                //var deps = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(argumentType));
                 List<object> deps = new List<object>();
                 foreach (var configuratedType in configuratedTypes)
                 {
@@ -79,8 +77,8 @@ namespace DependencyInjectionLibrary
             }
                 
 
-            if (config.LifeTime == Configurator.Lifetime.Singleton && Instances.ContainsKey(implementation))
-                return Instances[implementation];
+            if (config.LifeTime == Configurator.Lifetime.Singleton && _instances.ContainsKey(implementation))
+                return _instances[implementation];
 
             ConstructorInfo[] constructors = implementation.GetConstructors().OrderByDescending(x => x.GetParameters().Length).ToArray();
 
@@ -105,9 +103,9 @@ namespace DependencyInjectionLibrary
             }
 
 
-            if (config.LifeTime == Configurator.Lifetime.Singleton && !Instances.ContainsKey(implementation))
-                if (!Instances.TryAdd(implementation, resultObject))
-                    return Instances[implementation];
+            if (config.LifeTime == Configurator.Lifetime.Singleton && !_instances.ContainsKey(implementation))
+                if (!_instances.TryAdd(implementation, resultObject))
+                    return _instances[implementation];
             return resultObject;
         }
 

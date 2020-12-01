@@ -11,7 +11,6 @@ namespace DependencyInjectionLibrary
         }
 
         public Lifetime LifeTime { get; }
-
         public Type Interface { get; }
         public Type Implementation { get; }
 
@@ -21,8 +20,6 @@ namespace DependencyInjectionLibrary
             Interface = currentInterface;
             Implementation = currentImplementation;
             LifeTime = lifetime;
-
         }
-
     }
 }
