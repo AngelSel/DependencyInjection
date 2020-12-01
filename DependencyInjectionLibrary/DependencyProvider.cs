@@ -17,9 +17,9 @@ namespace DependencyInjectionLibrary
             _dependencyConfig = config;
         }
 
-        public TDependency Resolve<TDependency>() where TDependency : class
+        public object Resolve<TDependency>() where TDependency : class
         {
-            return (TDependency)Resolve(typeof(TDependency));
+            return Resolve(typeof(TDependency));
         }
 
 
@@ -28,7 +28,8 @@ namespace DependencyInjectionLibrary
     
             if(typeof(IEnumerable).IsAssignableFrom(tDependency) && tDependency.IsGenericType)
             {
-                return Create(tDependency);
+                var collection = Create(tDependency);
+                return collection;
             }
             else if(tDependency.IsGenericType && _dependencyConfig.GetConfigurator(tDependency)==null)
             {
@@ -46,14 +47,14 @@ namespace DependencyInjectionLibrary
         }
 
 
-        private object Create(Type type)
+        private List<object> Create(Type type)
         {
             var argumentType = type.GetGenericArguments()[0];
 
             if(_dependencyConfig.registeredConfigurations.TryGetValue(argumentType, out var configuratedTypes))
             {
-                var deps = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(argumentType));
-
+                //var deps = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(argumentType));
+                List<object> deps = new List<object>();
                 foreach (var configuratedType in configuratedTypes)
                 {
                     deps.Add(CreateInstance(configuratedType));
